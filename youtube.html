@@ -1,358 +1,986 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>YouTube.com Clone</title>
+<!-- ... existing code ... -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUNCHIES // Cyber Vaporwave Snack Wave</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Retro/Vaporwave Feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D Graphics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vaporPink: '#ff71ce',
+                        vaporBlue: '#01cdfe',
+                        vaporGreen: '#05ffa1',
+                        vaporPurple: '#b967ff',
+                        vaporYellow: '#fffb96',
+                        munchiesPurple: '#9d4edd',
+                        munchiesDarkPurple: '#3c096c',
+                        cheetoOrange: '#ff5500',
+                        cheetoRed: '#ff0033',
+                        synthDark: '#0d0221',
+                        synthDeep: '#050014'
+                    },
+                    fontFamily: {
+                        press: ['"Press Start 2P"', 'cursive'],
+                        vt: ['VT323', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 
-    <link rel="stylesheet" href="styles/general.css">
-    <link rel="stylesheet" href="styles/header.css">
-    <link rel="stylesheet" href="styles/video.css">
-    <link rel="stylesheet" href="styles/sidebar.css">
-  </head>
-  <body>
-    <header class="header">
-      <div class="left-section">
-        <img class="hamburger-menu" src="icons/hamburger-menu.svg">
-        <img class="youtube-logo" src="icons/youtube-logo.svg">
-      </div>
-      <div class="middle-section">
-        <input class="search-bar" type="text" placeholder="Search">
-        <button class="search-button">
-          <img class="search-icon" src="icons/search.svg">
-          <div class="tooltip">Search</div>
-        </button>
-        <!-- Put position absolute inside position relative -->
-        <button class="voice-search-button">
-          <img class="voice-search-icon" src="icons/voice-search-icon.svg">
-          <div class="tooltip">Search with your voice</div>
-        </button>
-      </div>
-      <div class="right-section">
-        <div class="upload-icon-container">
-          <img class="upload-icon" src="icons/upload.svg">
-          <div class="tooltip">Create</div>
+    <style>
+        .scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(185, 103, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(185, 103, 255, 0.15) 1px, transparent 1px);
+        }
+
+        .perspective-floor {
+            perspective: 450px;
+        }
+
+        .floor-plane {
+            transform: rotateX(75deg);
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, #ff71ce 1px, transparent 1px),
+                linear-gradient(to bottom, #01cdfe 1px, transparent 1px);
+            animation: grid-scroll 20s linear infinite;
+        }
+
+        @keyframes grid-scroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 500px; }
+        }
+
+        .glow-text-pink {
+            text-shadow: 0 0 10px #ff71ce, 0 0 20px #ff71ce, 0 0 30px #ff71ce;
+        }
+
+        .glow-box-pink {
+            box-shadow: 0 0 20px rgba(255, 113, 206, 0.4), inset 0 0 15px rgba(255, 113, 206, 0.2);
+        }
+
+        .glow-box-blue {
+            box-shadow: 0 0 20px rgba(1, 205, 254, 0.4), inset 0 0 15px rgba(1, 205, 254, 0.2);
+        }
+
+        .food-card-wrap {
+            perspective: 1000px;
+        }
+
+        .food-card-inner {
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* Pulsing Computer Clickable Ring */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .computer-pulse {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-synthDeep text-white font-rajdhani overflow-x-hidden selection:bg-vaporPink selection:text-black">
+
+    <!-- CRT Overlay Lines -->
+    <div class="fixed inset-0 scanlines z-40"></div>
+
+    <!-- RETRO COSMIC COMPUTER INTRO OVERLAY (Matching Video Reference) -->
+    <div id="entrance-overlay" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-1000 overflow-hidden">
+        
+        <!-- Three.js Canvas for Floating 3D Retro PC & Iridescent Geometric Prisms in Starfield -->
+        <canvas id="intro-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
+
+        <!-- Interactive Click Target / Hint Banner -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 text-center pointer-events-none select-none">
+            <div class="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-vaporPink glow-box-pink computer-pulse">
+                <span class="font-vt text-vaporYellow text-2xl tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-hand-pointer text-vaporPink animate-bounce"></i>
+                    CLICK COMPUTER TO ENTER MUNCHIES MATRIX
+                </span>
+            </div>
         </div>
-        <div class="youtube-apps-icon-container">
-          <img class="youtube-apps-icon" src="icons/youtube-apps.svg">
-          <div class="tooltip">YouTube Apps</div>
+
+        <!-- Top Left Mini Mascot Indicator inside Intro -->
+        <div class="absolute top-6 left-6 z-20 flex items-center space-x-3 pointer-events-none">
+            <div class="w-10 h-10">
+                <svg viewBox="0 0 200 240" class="w-full h-full">
+                    <path d="M 60 110 Q 20 100 25 130" stroke="#b967ff" stroke-width="8" stroke-linecap="round" fill="none" />
+                    <path d="M 140 110 Q 180 100 175 130" stroke="#b967ff" stroke-width="8" stroke-linecap="round" fill="none" />
+                    <g transform="translate(10, 125)">
+                        <path d="M 15 15 C 5 15 0 25 5 35 C 10 42 25 40 30 30 C 35 20 25 15 15 15 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
+                    </g>
+                    <g transform="translate(160, 125)">
+                        <path d="M 15 15 C 25 15 30 25 25 35 C 20 42 5 40 0 30 C -5 20 5 15 15 15 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
+                    </g>
+                    <path d="M 80 150 L 70 190" stroke="#b967ff" stroke-width="9" stroke-linecap="round" />
+                    <path d="M 120 150 L 130 190" stroke="#b967ff" stroke-width="9" stroke-linecap="round" />
+                    <path d="M 45 185 C 45 170 70 170 80 185 L 85 210 C 85 218 45 218 45 210 Z" fill="#9d4edd" stroke="#b967ff" stroke-width="3" />
+                    <path d="M 115 185 C 115 170 140 170 155 185 L 155 210 C 155 218 115 218 115 210 Z" fill="#9d4edd" stroke="#b967ff" stroke-width="3" />
+                    <circle cx="100" cy="100" r="50" fill="#fffb96" stroke="#b967ff" stroke-width="6" />
+                    <ellipse cx="80" cy="90" rx="6" ry="12" fill="#000000" />
+                    <ellipse cx="120" cy="90" rx="6" ry="12" fill="#000000" />
+                    <path d="M 70 110 Q 100 140 130 110" stroke="#000000" stroke-width="6" stroke-linecap="round" fill="none" />
+                </svg>
+            </div>
+            <span class="font-orbitron font-bold text-xl text-vaporPink tracking-widest glow-text-pink">MUNCHIES OS v1.994</span>
         </div>
-        <div class="notifications-icon-container">
-          <img class="notifications-icon" src="icons/notifications.svg">
-          <div class="notifications-count">3</div>
-          <div class="tooltip">Notifications</div>
-        </div>
-        <img class="current-user-picture" src="channel-pictures/my-channel.jpeg">
-      </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-30 bg-synthDark/80 backdrop-blur-md border-b border-munchiesPurple/40 px-6 py-3 flex justify-between items-center">
+        <!-- Top Left Logo with Custom Smiling Mascot -->
+        <a href="#hero" class="flex items-center space-x-3 group">
+            <div class="w-12 h-12 relative flex-shrink-0">
+                <svg viewBox="0 0 200 240" class="w-full h-full transform group-hover:scale-110 transition duration-300">
+                    <!-- Left Arm (Purple Line) -->
+                    <path d="M 60 110 Q 20 100 25 130" stroke="#b967ff" stroke-width="8" stroke-linecap="round" fill="none" />
+                    <!-- Right Arm (Purple Line) -->
+                    <path d="M 140 110 Q 180 100 175 130" stroke="#b967ff" stroke-width="8" stroke-linecap="round" fill="none" />
+                    <!-- Left Disney Glove -->
+                    <g transform="translate(10, 125)">
+                        <path d="M 15 15 C 5 15 0 25 5 35 C 10 42 25 40 30 30 C 35 20 25 15 15 15 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
+                    </g>
+                    <!-- Right Disney Glove -->
+                    <g transform="translate(160, 125)">
+                        <path d="M 15 15 C 25 15 30 25 25 35 C 20 42 5 40 0 30 C -5 20 5 15 15 15 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
+                    </g>
+                    <!-- Left Leg (Purple Stick) -->
+                    <path d="M 80 150 L 70 190" stroke="#b967ff" stroke-width="9" stroke-linecap="round" />
+                    <!-- Right Leg (Purple Stick) -->
+                    <path d="M 120 150 L 130 190" stroke="#b967ff" stroke-width="9" stroke-linecap="round" />
+                    <!-- Left Astroboy Shoe (Purple Chunky Boot) -->
+                    <path d="M 45 185 C 45 170 70 170 80 185 L 85 210 C 85 218 45 218 45 210 Z" fill="#9d4edd" stroke="#b967ff" stroke-width="3" />
+                    <!-- Right Astroboy Shoe (Purple Chunky Boot) -->
+                    <path d="M 115 185 C 115 170 140 170 155 185 L 155 210 C 155 218 115 218 115 210 Z" fill="#9d4edd" stroke="#b967ff" stroke-width="3" />
+                    <!-- Face Yellow Circle -->
+                    <circle cx="100" cy="100" r="50" fill="#fffb96" stroke="#b967ff" stroke-width="6" />
+                    <!-- Eyes -->
+                    <ellipse cx="80" cy="90" rx="6" ry="12" fill="#000000" />
+                    <ellipse cx="120" cy="90" rx="6" ry="12" fill="#000000" />
+                    <!-- Smile -->
+                    <path d="M 70 110 Q 100 140 130 110" stroke="#000000" stroke-width="6" stroke-linecap="round" fill="none" />
+                </svg>
+            </div>
+            <span class="font-orbitron font-black text-2xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-vaporPink via-munchiesPurple to-vaporBlue glow-text-pink">
+                MUNCHIES
+            </span>
+        </a>
+
+        <!-- Top Right Nav Tabs: Shop, About, Check Us Out, Contact Us -->
+        <nav class="flex items-center space-x-2 md:space-x-6 font-vt text-lg md:text-2xl tracking-wider">
+            <a href="#menu" class="px-3 py-1 rounded-md text-vaporPink hover:text-vaporYellow hover:bg-munchiesPurple/30 transition border border-transparent hover:border-vaporPink/50">
+                // SHOP
+            </a>
+            <a href="#about" class="px-3 py-1 rounded-md text-vaporBlue hover:text-vaporYellow hover:bg-munchiesPurple/30 transition border border-transparent hover:border-vaporBlue/50">
+                // ABOUT
+            </a>
+            <a href="#check-us-out" class="px-3 py-1 rounded-md text-vaporGreen hover:text-vaporYellow hover:bg-munchiesPurple/30 transition border border-transparent hover:border-vaporGreen/50">
+                // CHECK US OUT
+            </a>
+            <a href="#contact" class="px-3 py-1 rounded-md text-vaporYellow hover:text-vaporPink hover:bg-munchiesPurple/30 transition border border-transparent hover:border-vaporYellow/50">
+                // CONTACT US
+            </a>
+        </nav>
     </header>
 
-    <nav class="sidebar">
-      <div class="sidebar-link">
-        <img src="icons/home.svg">
-        <div>Home</div>
-      </div>
-      <div class="sidebar-link">
-        <img src="icons/explore.svg">
-        <div>Explore</div>
-      </div>
-      <div class="sidebar-link">
-        <img src="icons/subscriptions.svg">
-        <div>Subscriptions</div>
-      </div>
-      <div class="sidebar-link">
-        <img src="icons/originals.svg">
-        <div>Originals</div>
-      </div>
-      <div class="sidebar-link">
-        <img src="icons/youtube-music.svg">
-        <div>YouTube Music</div>
-      </div>
-      <div class="sidebar-link">
-        <img src="icons/library.svg">
-        <div>Library</div>
-      </div>
-    </nav>
-
-    <main>
-      <section class="video-grid">
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-1.webp">
-            <div class="video-time">14:20</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-1.jpeg">
-            </div>
-            <div class="video-info">
-              <p class="video-title">
-                Talking Tech and AI with Google CEO Sundar Pichai!
-              </p>
-              <p class="video-author">
-                Marques Brownlee
-              </p>
-              <p class="video-stats">
-                3.4M views &#183; 6 months ago
-              </p>
-            </div>
-          </div>
+    <!-- MAIN HERO SECTION WITH CLEAN VAPOR ATMOSPHERE & PURE THREE.JS ROTATING CHEETO BAG -->
+    <section id="hero" class="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden pt-20">
+        
+        <!-- Vaporwave Background Elements: Synth Sunset & Grid Floor (No Palm Trees) -->
+        <div class="absolute inset-0 grid-bg z-0"></div>
+        
+        <!-- Vapor Sunset Circle -->
+        <div class="absolute bottom-1/4 w-80 h-80 md:w-96 md:h-96 rounded-full bg-gradient-to-t from-vaporPink via-munchiesPurple to-vaporBlue opacity-70 filter blur-sm shadow-[0_0_90px_rgba(185,103,255,0.7)] z-0"></div>
+        
+        <!-- Clean Wireframe Perspective Floor -->
+        <div class="absolute bottom-0 inset-x-0 h-1/2 perspective-floor overflow-hidden z-0">
+            <div class="floor-plane w-full h-[200%]"></div>
         </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-2.webp">
-            <div class="video-time">8:22</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-2.jpeg">
-            </div>
-            <div class="video-info">
-              <p class="video-title">
-                Try Not To Laugh Challenge #9
-              </p>
-              <p class="video-author">
-                Markiplier
-              </p>
-              <p class="video-stats">
-                19M views &#183; 4 years ago
-              </p>
-            </div>
-          </div>
+        <!-- Section Title Header -->
+        <div class="relative z-10 text-center mb-2 px-4">
+            <span class="font-vt text-xl md:text-2xl text-vaporYellow tracking-widest bg-black/60 px-4 py-1 border border-munchiesPurple/50 rounded-full">
+                MUNCHIES 3D SCAN // CHIP ANATOMY
+            </span>
+            <h2 class="font-orbitron text-3xl md:text-5xl font-black mt-3 text-transparent bg-clip-text bg-gradient-to-r from-vaporPink via-munchiesPurple to-vaporBlue uppercase">
+                CYBER MUNCHIES FLAMIN' BAG
+            </h2>
         </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-3.webp">
-            <div class="video-time">9:13</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-3.jpeg">
+        <!-- Central 3D Canvas Container & Callouts Overlay -->
+        <div class="relative w-full max-w-5xl h-[500px] flex items-center justify-center z-10">
+            
+            <!-- Pure Three.js 3D Cheetos Bag Canvas (No Sketchfab, No Branding, Auto-rotating, No Drag) -->
+            <canvas id="cheetos-3d-canvas" class="w-full h-full rounded-2xl overflow-hidden relative shadow-[0_0_50px_rgba(185,103,255,0.4)] border border-munchiesPurple/50 bg-black/40 pointer-events-none select-none"></canvas>
+
+            <!-- SVG Overlay for Connecting Pointer Lines -->
+            <svg class="absolute inset-0 w-full h-full pointer-events-none z-20">
+                <!-- Line to Callout 1 (Top Left) -->
+                <line x1="48%" y1="30%" x2="22%" y2="20%" stroke="#ff71ce" stroke-width="2" />
+                <circle cx="48%" cy="30%" r="5" fill="#ff71ce" class="animate-ping" />
+
+                <!-- Line to Callout 2 (Top Right) -->
+                <line x1="55%" y1="38%" x2="78%" y2="22%" stroke="#fffb96" stroke-width="2" />
+                <circle cx="55%" cy="38%" r="5" fill="#fffb96" class="animate-ping" />
+
+                <!-- Line to Callout 3 (Bottom Left) -->
+                <line x1="43%" y1="62%" x2="20%" y2="75%" stroke="#01cdfe" stroke-width="2" />
+                <circle cx="43%" cy="62%" r="5" fill="#01cdfe" class="animate-ping" />
+
+                <!-- Line to Callout 4 (Bottom Right) -->
+                <line x1="53%" y1="68%" x2="78%" y2="78%" stroke="#05ffa1" stroke-width="2" />
+                <circle cx="53%" cy="68%" r="5" fill="#05ffa1" class="animate-ping" />
+            </svg>
+
+            <!-- Anatomical Callout Glass Cards -->
+            <div class="absolute top-[10%] left-[4%] md:left-[8%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporPink glow-box-pink z-20 transform hover:scale-105 transition duration-300">
+                <div class="flex items-center space-x-2 text-vaporPink font-orbitron text-xs font-bold mb-1">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>CRUNCH FACTOR: 100dB</span>
+                </div>
+                <p class="font-vt text-white text-lg leading-tight">
+                    Dual-baked mesh grid structure crafted for maximum audio crispness in every bite.
+                </p>
             </div>
-            <div class="video-info">
-              <p class="video-title">
-                Crazy Tik Toks Taken Moments Before DISASTER
-              </p>
-              <p class="video-author">
-                SSSniperWolf
-              </p>
-              <p class="video-stats">
-                12M views &#183; 1 year ago
-              </p>
+
+            <div class="absolute top-[12%] right-[4%] md:right-[8%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporYellow shadow-[0_0_15px_rgba(255,251,150,0.3)] z-20 transform hover:scale-105 transition duration-300">
+                <div class="flex items-center space-x-2 text-vaporYellow font-orbitron text-xs font-bold mb-1">
+                    <i class="fa-solid fa-atom"></i>
+                    <span>NEON CHEESE DUST</span>
+                </div>
+                <p class="font-vt text-white text-lg leading-tight">
+                    Micro-charged cheesy particulate coating fingers in glowing radioactive neon yellow.
+                </p>
             </div>
-          </div>
+
+            <div class="absolute bottom-[10%] left-[4%] md:left-[6%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporBlue glow-box-blue z-20 transform hover:scale-105 transition duration-300">
+                <div class="flex items-center space-x-2 text-vaporBlue font-orbitron text-xs font-bold mb-1">
+                    <i class="fa-solid fa-shield"></i>
+                    <span>NITROGEN FOIL BARRIER</span>
+                </div>
+                <p class="font-vt text-white text-lg leading-tight">
+                    Pressurized retro foil chamber insulating freshness against atmospheric degradation.
+                </p>
+            </div>
+
+            <div class="absolute bottom-[8%] right-[4%] md:right-[6%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporGreen shadow-[0_0_15px_rgba(5,255,161,0.3)] z-20 transform hover:scale-105 transition duration-300">
+                <div class="flex items-center space-x-2 text-vaporGreen font-orbitron text-xs font-bold mb-1">
+                    <i class="fa-solid fa-pepper-hot"></i>
+                    <span>VAPOR SPICE MATRIX</span>
+                </div>
+                <p class="font-vt text-white text-lg leading-tight">
+                    Infused with synthetic chili compounds giving a signature lingering retro warmth.
+                </p>
+            </div>
+
         </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-4.webp">
-            <div class="video-time">22:09</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-4.jpeg">
-            </div>
-            <div class="video-info">
-              <p class="video-title">
-                The Simplest Math Problem No One Can Solve - Collatz Conjecture
-              </p>
-              <p class="video-author">
-                Veritasium
-              </p>
-              <p class="video-stats">
-                18M views &#183; 4 months ago
-              </p>
-            </div>
-          </div>
+        <!-- Scroll down indicator -->
+        <div class="relative z-10 bottom-4 text-center animate-bounce">
+            <a href="#menu" class="text-vaporYellow font-vt text-xl flex flex-col items-center">
+                <span>SCROLL DOWN TO EXPLORE THE MUNCHIES REPOSITORY</span>
+                <i class="fa-solid fa-chevron-down text-vaporPink text-2xl mt-1"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOD MENU / GALLERY SECTION WITH 3D HOVER EFFECT & FROSTED BLUR -->
+    <section id="menu" class="relative py-20 px-6 max-w-7xl mx-auto z-10">
+        
+        <div class="text-center mb-16">
+            <h2 class="font-orbitron text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-vaporPink via-munchiesPurple to-vaporBlue tracking-wider">
+                MUNCHIES SNACK REPOSITORY
+            </h2>
+            <p class="font-vt text-2xl text-vaporYellow mt-2">
+                HOVER TO TILT CARDS & UNLOCK HOLOGRAPHIC SNACK DATA
+            </p>
         </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-5.webp">
-            <div class="video-time">11:17</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-5.jpeg">
+        <!-- Grid of 3D Interactive Food Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Food Card 1 -->
+            <div class="food-card-wrap">
+                <div class="food-card-inner relative h-96 rounded-2xl overflow-hidden border border-vaporPink/60 bg-synthDark shadow-xl group">
+                    <img src="https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=800&q=80" alt="Flamin Crunch Chips" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-vaporPink text-black font-orbitron font-bold text-xs px-3 py-1 rounded-md shadow-md">
+                        MUNCHIES ORIGINAL
+                    </div>
+                    
+                    <!-- Transparent Purple Blur Overlay -->
+                    <div class="absolute inset-0 bg-munchiesDarkPurple/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-between border-2 border-vaporPink rounded-2xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-orbitron font-bold text-2xl text-vaporPink glow-text-pink">FLAMIN' CRUNCH CHIPS</h3>
+                                <span class="font-vt text-2xl text-vaporYellow">$3.99</span>
+                            </div>
+                            <p class="font-vt text-xl text-gray-100 mt-4 leading-snug">
+                                Iconic curved corn crisp coated in radioactive cheese dust and fiery synth seasoning.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-orbitron text-vaporYellow">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>CRUNCH: 100/100</span>
+                            </div>
+                            <button class="w-full py-2 bg-gradient-to-r from-munchiesPurple via-vaporPink to-vaporBlue text-black font-orbitron font-bold text-sm rounded hover:brightness-125 transition">
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="video-info">
-              <p class="video-title">
-                Kadane's Algorithm to Maximum Sum Subarray Problem
-              </p>
-              <p class="video-author">
-                CS Dojo
-              </p>
-              <p class="video-stats">
-                519K views &#183; 5 years ago
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-6.webp">
-            <div class="video-time">19:59</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-6.jpeg">
-            </div>
-            <div class="video-info">
-              <p class="video-title">
-                Anything You Can Fit In The Circle I’ll Pay For
-              </p>
-              <p class="video-author">
-                MrBeast
-              </p>
-              <p class="video-stats">
-                141M views &#183; 1 year ago
-              </p>
-            </div>
-          </div>
-        </div>
+            <!-- Food Card 2 -->
+            <div class="food-card-wrap">
+                <div class="food-card-inner relative h-96 rounded-2xl overflow-hidden border border-vaporBlue/60 bg-synthDark shadow-xl group">
+                    <img src="https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&w=800&q=80" alt="Cyber Nachos" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-vaporBlue text-black font-orbitron font-bold text-xs px-3 py-1 rounded-md shadow-md">
+                        HOT CHEESE MESH
+                    </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-7.webp">
-            <div class="video-time">10:13</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-7.jpeg">
+                    <!-- Transparent Purple Blur Overlay -->
+                    <div class="absolute inset-0 bg-munchiesDarkPurple/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-between border-2 border-vaporBlue rounded-2xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-orbitron font-bold text-2xl text-vaporBlue">CYBER NACHOS</h3>
+                                <span class="font-vt text-2xl text-vaporYellow">$5.49</span>
+                            </div>
+                            <p class="font-vt text-xl text-gray-100 mt-4 leading-snug">
+                                Tri-layer tortilla matrix drenched in glowing jalapeno queso and crushed spicy chips.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-orbitron text-vaporBlue">
+                                <i class="fa-solid fa-fire"></i>
+                                <span>CHEESE OVERLOAD: 98%</span>
+                            </div>
+                            <button class="w-full py-2 bg-gradient-to-r from-vaporBlue to-munchiesPurple text-black font-orbitron font-bold text-sm rounded hover:brightness-125 transition">
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="video-info">
-              <p class="video-title">
-                Why Planes Don't Fly Over Tibet
-              </p>
-              <p class="video-author">
-                RealLifeLore
-              </p>
-              <p class="video-stats">
-                6.6M views &#183; 1 year ago
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-8.webp">
-            <div class="video-time">7:12</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-8.jpeg">
-            </div>
-            <div class="video-info">
-              <p class="video-title">
-                Inside The World's Biggest Passenger Plane
-              </p>
-              <p class="video-author">
-                Tech Vision
-              </p>
-              <p class="video-stats">
-                3.7M views &#183; 10 months ago
-              </p>
-            </div>
-          </div>
-        </div>
+            <!-- Food Card 3 -->
+            <div class="food-card-wrap">
+                <div class="food-card-inner relative h-96 rounded-2xl overflow-hidden border border-vaporYellow/60 bg-synthDark shadow-xl group">
+                    <img src="https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=800&q=80" alt="Retro Cheese Puffs" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-vaporYellow text-black font-orbitron font-bold text-xs px-3 py-1 rounded-md shadow-md">
+                        AIR-PUFFED
+                    </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-9.webp">
-            <div class="video-time">13:17</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-9.jpeg">
+                    <!-- Transparent Purple Blur Overlay -->
+                    <div class="absolute inset-0 bg-munchiesDarkPurple/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-between border-2 border-vaporYellow rounded-2xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-orbitron font-bold text-2xl text-vaporYellow">RETRO CHEESE PUFFS</h3>
+                                <span class="font-vt text-2xl text-vaporPink">$3.99</span>
+                            </div>
+                            <p class="font-vt text-xl text-gray-100 mt-4 leading-snug">
+                                Ultra-light cloud puffs that melt instantly into a wave of rich cheddar synth-flavor.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-orbitron text-vaporYellow">
+                                <i class="fa-solid fa-cloud"></i>
+                                <span>LIGHTNESS: MAX</span>
+                            </div>
+                            <button class="w-full py-2 bg-gradient-to-r from-vaporYellow to-munchiesPurple text-black font-orbitron font-bold text-sm rounded hover:brightness-125 transition">
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="video-info">
-              <p class="video-title">
-                The SECRET to Super Human STRENGTH
-              </p>
-              <p class="video-author">
-                ThenX
-              </p>
-              <p class="video-stats">
-                20M views &#183; 3 years ago
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-10.webp">
-            <div class="video-time">7:53</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-10.jpeg">
-            </div>
-            <div class="video-info">
-              <p class="video-title">
-                How The World's Largest Cruise Ship Makes 30,000 Meals Every Day
-              </p>
-              <p class="video-author">
-                Business Insider
-              </p>
-              <p class="video-stats">
-                14M views &#183; 1 year ago
-              </p>
-            </div>
-          </div>
-        </div>
+            <!-- Food Card 4 -->
+            <div class="food-card-wrap">
+                <div class="food-card-inner relative h-96 rounded-2xl overflow-hidden border border-vaporGreen/60 bg-synthDark shadow-xl group">
+                    <img src="https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80" alt="Vapor Fries" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-vaporGreen text-black font-orbitron font-bold text-xs px-3 py-1 rounded-md shadow-md">
+                        LOADED FRIES
+                    </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-11.webp">
-            <div class="video-time">4:10</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-11.jpeg">
+                    <!-- Transparent Purple Blur Overlay -->
+                    <div class="absolute inset-0 bg-munchiesDarkPurple/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-between border-2 border-vaporGreen rounded-2xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-orbitron font-bold text-2xl text-vaporGreen">VAPOR FRIES</h3>
+                                <span class="font-vt text-2xl text-vaporYellow">$6.25</span>
+                            </div>
+                            <p class="font-vt text-xl text-gray-100 mt-4 leading-snug">
+                                Crispy potato batons seasoned in neon salt and topped with cheesy chip crumble.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-orbitron text-vaporGreen">
+                                <i class="fa-solid fa-utensils"></i>
+                                <span>CRISP RATING: 99%</span>
+                            </div>
+                            <button class="w-full py-2 bg-gradient-to-r from-vaporGreen to-munchiesPurple text-black font-orbitron font-bold text-sm rounded hover:brightness-125 transition">
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="video-info">
-              <p class="video-title">
-                Dubai's Crazy Underwater Train and Other Things #Only in Dubai
-              </p>
-              <p class="video-author">
-                Destination Tips
-              </p>
-              <p class="video-stats">
-                3M views &#183; 1 year ago
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div class="video-preview">
-          <div class="thumbnail-row">
-            <img class="thumbnail" src="thumbnails/thumbnail-12.webp">
-            <div class="video-time">4:51</div>
-          </div>
-          <div class="video-info-grid">
-            <div class="channel-picture">
-              <img class="profile-picture" src="channel-pictures/channel-12.jpeg">
+            <!-- Food Card 5 -->
+            <div class="food-card-wrap">
+                <div class="food-card-inner relative h-96 rounded-2xl overflow-hidden border border-munchiesPurple/60 bg-synthDark shadow-xl group">
+                    <img src="https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=800&q=80" alt="Cosmic Tacos" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-munchiesPurple text-white font-orbitron font-bold text-xs px-3 py-1 rounded-md shadow-md">
+                        CRUNCH SHELL
+                    </div>
+
+                    <!-- Transparent Purple Blur Overlay -->
+                    <div class="absolute inset-0 bg-munchiesDarkPurple/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-between border-2 border-munchiesPurple rounded-2xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-orbitron font-bold text-2xl text-vaporPink">COSMIC TACOS</h3>
+                                <span class="font-vt text-2xl text-vaporYellow">$5.99</span>
+                            </div>
+                            <p class="font-vt text-xl text-gray-100 mt-4 leading-snug">
+                                Hard taco shell dusted with crushed spicy chips, filled with seasoned beef and melted cheese.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-orbitron text-vaporPink">
+                                <i class="fa-solid fa-burst"></i>
+                                <span>FLAVOR EXPLOSION</span>
+                            </div>
+                            <button class="w-full py-2 bg-gradient-to-r from-munchiesPurple to-vaporPink text-white font-orbitron font-bold text-sm rounded hover:brightness-125 transition">
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="video-info">
-              <p class="video-title">
-                What would happen if you didn’t drink water? - Mia Nacamulli
-              </p>
-              <p class="video-author">
-                TED-Ed
-              </p>
-              <p class="video-stats">
-                12M views &#183; 5 years ago
-              </p>
+
+            <!-- Food Card 6 -->
+            <div class="food-card-wrap">
+                <div class="food-card-inner relative h-96 rounded-2xl overflow-hidden border border-vaporYellow/60 bg-synthDark shadow-xl group">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" alt="Neon Cheesy Burger" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute top-4 left-4 z-10 bg-vaporYellow text-black font-orbitron font-bold text-xs px-3 py-1 rounded-md shadow-md">
+                        SUPREME STACK
+                    </div>
+
+                    <!-- Transparent Purple Blur Overlay -->
+                    <div class="absolute inset-0 bg-munchiesDarkPurple/60 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-6 flex flex-col justify-between border-2 border-vaporYellow rounded-2xl">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-orbitron font-bold text-2xl text-vaporYellow">NEON CHEESY BURGER</h3>
+                                <span class="font-vt text-2xl text-vaporPink">$8.49</span>
+                            </div>
+                            <p class="font-vt text-xl text-gray-100 mt-4 leading-snug">
+                                Double beef patty topped with deep-fried chip crust and thick liquid cheddar fallouts.
+                            </p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-orbitron text-vaporYellow">
+                                <i class="fa-solid fa-crown"></i>
+                                <span>SUPREME SATISFACTION</span>
+                            </div>
+                            <button class="w-full py-2 bg-gradient-to-r from-vaporYellow via-vaporPink to-munchiesPurple text-black font-orbitron font-bold text-sm rounded hover:brightness-125 transition">
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
         </div>
-      </section>
-    </main>
-  </body>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="py-20 px-6 max-w-5xl mx-auto z-10 relative">
+        <div class="bg-synthDark/80 border-2 border-munchiesPurple rounded-2xl p-8 backdrop-blur-md glow-box-pink">
+            <h2 class="font-orbitron text-3xl md:text-4xl font-bold text-vaporPink mb-4 flex items-center space-x-3">
+                <i class="fa-solid fa-gamepad text-vaporBlue"></i>
+                <span>// ABOUT MUNCHIES</span>
+            </h2>
+            <p class="font-vt text-2xl text-gray-300 leading-relaxed">
+                Born in the retro-futuristic grid of 1994, <strong class="text-vaporYellow">MUNCHIES</strong> brings you next-gen snack physics with high-intensity crunch and synthetic neon flavor profiles. Built for gamers, night-owls, and vaporwave dreamers across the cyber matrix.
+            </p>
+        </div>
+    </section>
+
+    <!-- CHECK US OUT SECTION -->
+    <section id="check-us-out" class="py-16 px-6 max-w-5xl mx-auto z-10 relative">
+        <div class="bg-synthDark/80 border-2 border-vaporGreen rounded-2xl p-8 backdrop-blur-md shadow-[0_0_20px_rgba(5,255,161,0.3)]">
+            <h2 class="font-orbitron text-3xl md:text-4xl font-bold text-vaporGreen mb-4 flex items-center space-x-3">
+                <i class="fa-solid fa-satellite-dish text-vaporYellow"></i>
+                <span>// CHECK US OUT</span>
+            </h2>
+            <p class="font-vt text-2xl text-gray-300 mb-6">
+                Tune in to our live synth streams, community snack drops, TikTok viral clips, and cyber arcade tournaments worldwide!
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <button class="px-6 py-2 bg-vaporGreen text-black font-orbitron font-bold rounded hover:scale-105 transition cursor-pointer">
+                    <i class="fa-brands fa-tiktok me-2"></i> TIKTOK
+                </button>
+                <button class="px-6 py-2 bg-vaporPink text-black font-orbitron font-bold rounded hover:scale-105 transition cursor-pointer">
+                    <i class="fa-brands fa-instagram me-2"></i> INSTAGRAM
+                </button>
+                <button class="px-6 py-2 bg-vaporBlue text-black font-orbitron font-bold rounded hover:scale-105 transition cursor-pointer">
+                    <i class="fa-brands fa-twitch me-2"></i> TWITCH
+                </button>
+                <button class="px-6 py-2 bg-vaporYellow text-black font-orbitron font-bold rounded hover:scale-105 transition cursor-pointer">
+                    <i class="fa-brands fa-discord me-2"></i> DISCORD SERVER
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT US SECTION -->
+    <section id="contact" class="py-16 px-6 max-w-5xl mx-auto z-10 relative mb-12">
+        <div class="bg-synthDark/80 border-2 border-vaporBlue rounded-2xl p-8 backdrop-blur-md glow-box-blue">
+            <h2 class="font-orbitron text-3xl md:text-4xl font-bold text-vaporBlue mb-4 flex items-center space-x-3">
+                <i class="fa-solid fa-terminal text-vaporPink"></i>
+                <span>// CONTACT US</span>
+            </h2>
+            <form onsubmit="event.preventDefault();" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="YOUR CYBER HANDLE" class="bg-black/50 border border-vaporBlue p-3 rounded font-vt text-xl text-white focus:outline-none focus:border-vaporPink" />
+                    <input type="email" placeholder="COMM_FREQUENCY@MATRIX.COM" class="bg-black/50 border border-vaporBlue p-3 rounded font-vt text-xl text-white focus:outline-none focus:border-vaporPink" />
+                </div>
+                <textarea rows="3" placeholder="TRANSMIT MESSAGE..." class="w-full bg-black/50 border border-vaporBlue p-3 rounded font-vt text-xl text-white focus:outline-none focus:border-vaporPink"></textarea>
+                <button class="px-8 py-3 bg-gradient-to-r from-vaporBlue to-munchiesPurple text-white font-orbitron font-bold rounded hover:brightness-125 transition">
+                    TRANSMIT MESSAGE
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER SECTION -->
+    <footer id="footer" class="relative z-10 border-t border-munchiesPurple/40 bg-synthDark/95 py-8 px-6 text-center font-vt">
+        <div class="max-w-4xl mx-auto space-y-4">
+            <div class="flex justify-center space-x-6 text-2xl text-vaporPink">
+                <a href="#" class="hover:text-vaporYellow transition"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="#" class="hover:text-vaporBlue transition"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="hover:text-vaporBlue transition"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="hover:text-vaporBlue transition"><i class="fa-brands fa-discord"></i></a>
+            </div>
+            <p class="text-xl text-gray-400">
+                SYSTEM status: <span class="text-vaporGreen">ONLINE</span> | REPOSITORY BUILD: 1994.08.23
+            </p>
+            <p class="text-sm text-gray-500 font-rajdhani">
+                © 1994-2026 MUNCHIES INC. ALL RIGHTS RESERVED. VAPORWAVE SNACK DIVISION.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // =========================================================================
+        // 1. RETRO COSMIC INTRO SCENE WITH FLOATING COMPUTER & IRIDESCENT PRISMS
+        // =========================================================================
+        function initIntroScene() {
+            const canvas = document.getElementById('intro-canvas');
+            const overlay = document.getElementById('entrance-overlay');
+            if (!canvas) return;
+
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050014, 0.03);
+
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 7);
+
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const pointLight1 = new THREE.PointLight(0xff71ce, 2, 20);
+            pointLight1.position.set(5, 5, 5);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0x01cdfe, 2, 20);
+            pointLight2.position.set(-5, -5, 5);
+            scene.add(pointLight2);
+
+            // Background Starfield
+            const starsGeo = new THREE.BufferGeometry();
+            const starsCount = 800;
+            const starPos = new Float32Array(starsCount * 3);
+            for(let i = 0; i < starsCount * 3; i++) {
+                starPos[i] = (Math.random() - 0.5) * 40;
+            }
+            starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+            const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, transparent: true, opacity: 0.8 });
+            const starField = new THREE.Points(starsGeo, starsMat);
+            scene.add(starField);
+
+            // Group for Central Computer & Pedestal
+            const pcGroup = new THREE.Group();
+            scene.add(pcGroup);
+
+            // Pedestal Platform
+            const pedGeo = new THREE.BoxGeometry(2.4, 0.15, 2.4);
+            const pedMat = new THREE.MeshStandardMaterial({ 
+                color: 0xb967ff, 
+                metalness: 0.8, 
+                roughness: 0.2, 
+                emissive: 0x3c096c,
+                emissiveIntensity: 0.5
+            });
+            const pedestal = new THREE.Mesh(pedGeo, pedMat);
+            pedestal.position.y = -1.1;
+            pcGroup.add(pedestal);
+
+            // Computer Monitor Body
+            const pcBodyGeo = new THREE.BoxGeometry(1.4, 1.2, 1.1);
+            const pcBodyMat = new THREE.MeshStandardMaterial({ color: 0xdfd3c3, roughness: 0.5 });
+            const pcBody = new THREE.Mesh(pcBodyGeo, pcBodyMat);
+            pcBody.position.y = -0.25;
+            pcGroup.add(pcBody);
+
+            // CRT Screen Face with Rainbow Glow Texture
+            const screenCanvas = document.createElement('canvas');
+            screenCanvas.width = 256;
+            screenCanvas.height = 256;
+            const ctx = screenCanvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 256, 256);
+            grad.addColorStop(0, '#ff71ce');
+            grad.addColorStop(0.3, '#01cdfe');
+            grad.addColorStop(0.6, '#05ffa1');
+            grad.addColorStop(1, '#fffb96');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 256, 256);
+            ctx.fillStyle = '#000';
+            ctx.font = '28px monospace';
+            ctx.fillText('MUNCHIES OS', 40, 130);
+
+            const screenTex = new THREE.CanvasTexture(screenCanvas);
+            const screenGeo = new THREE.PlaneGeometry(1.1, 0.85);
+            const screenMat = new THREE.MeshBasicMaterial({ map: screenTex });
+            const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+            screenMesh.position.set(0, -0.2, 0.56);
+            pcGroup.add(screenMesh);
+
+            // Keyboard Base
+            const kbGeo = new THREE.BoxGeometry(1.3, 0.1, 0.6);
+            const kbMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+            const kb = new THREE.Mesh(kbGeo, kbMat);
+            kb.position.set(0, -0.9, 0.6);
+            pcGroup.add(kb);
+
+            // Floating Iridescent Prisms / Cubes / Spheres around
+            const floatingItems = [];
+            const iridMat = new THREE.MeshStandardMaterial({
+                color: 0xff71ce,
+                metalness: 0.9,
+                roughness: 0.1,
+                emissive: 0x01cdfe,
+                emissiveIntensity: 0.3
+            });
+
+            const geoms = [
+                new THREE.BoxGeometry(0.5, 0.5, 0.5),
+                new THREE.OctahedronGeometry(0.4),
+                new THREE.SphereGeometry(0.3, 16, 16),
+                new THREE.CylinderGeometry(0.2, 0.2, 0.6, 6)
+            ];
+
+            for (let i = 0; i < 18; i++) {
+                const mesh = new THREE.Mesh(geoms[i % geoms.length], iridMat);
+                mesh.position.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 6 - 1
+                );
+                mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+                scene.add(mesh);
+                floatingItems.push({
+                    mesh: mesh,
+                    rotSpeedX: (Math.random() - 0.5) * 0.03,
+                    rotSpeedY: (Math.random() - 0.5) * 0.03,
+                    floatOffset: Math.random() * Math.PI * 2
+                });
+            }
+
+            // Raycaster for Clicking Computer
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            function onPointerDown(e) {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(pcGroup.children, true);
+
+                // Clicking anywhere on the canvas or computer triggers smooth entrance
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 1000);
+            }
+
+            window.addEventListener('click', onPointerDown);
+
+            // Animation Loop
+            let clock = new THREE.Clock();
+            function animateIntro() {
+                requestAnimationFrame(animateIntro);
+                const elapsed = clock.getElapsedTime();
+
+                // Gentle Computer Floating
+                pcGroup.position.y = Math.sin(elapsed * 1.5) * 0.15;
+                pcGroup.rotation.y = Math.sin(elapsed * 0.8) * 0.12;
+
+                // Floating Shapes Motion
+                floatingItems.forEach(item => {
+                    item.mesh.rotation.x += item.rotSpeedX;
+                    item.mesh.rotation.y += item.rotSpeedY;
+                    item.mesh.position.y += Math.sin(elapsed * 2 + item.floatOffset) * 0.003;
+                });
+
+                starField.rotation.y = elapsed * 0.02;
+
+                renderer.render(scene, camera);
+            }
+            animateIntro();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // =========================================================================
+        // 2. PURE THREE.JS 3D CHEETO BAG (NO SKETCHFAB, AUTO-ROTATING, NO DRAG)
+        // =========================================================================
+        function initCheetoBagScene() {
+            const canvas = document.getElementById('cheetos-3d-canvas');
+            if (!canvas) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+            camera.position.set(0, 0, 6.5);
+
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+            scene.add(ambient);
+
+            const dirLight1 = new THREE.DirectionalLight(0xff71ce, 1.8);
+            dirLight1.position.set(5, 5, 4);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0x01cdfe, 1.5);
+            dirLight2.position.set(-5, -3, 3);
+            scene.add(dirLight2);
+
+            // Container Group
+            const bagGroup = new THREE.Group();
+            scene.add(bagGroup);
+
+            // Cheetos Bag Texture Generator
+            const bagCanvas = document.createElement('canvas');
+            bagCanvas.width = 512;
+            bagCanvas.height = 512;
+            const ctx = bagCanvas.getContext('2d');
+
+            // Flamin Hot Red/Orange Gradient Background
+            const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
+            bgGrad.addColorStop(0, '#ff0033');
+            bgGrad.addColorStop(0.5, '#ff5500');
+            bgGrad.addColorStop(1, '#9d4edd');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Bag Title & Text
+            ctx.fillStyle = '#fffb96';
+            ctx.font = 'bold 58px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('CHEETOS', 256, 180);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 36px monospace';
+            ctx.fillText("FLAMIN' HOT", 256, 240);
+
+            ctx.fillStyle = '#05ffa1';
+            ctx.font = '24px monospace';
+            ctx.fillText('CYBER MUNCHIES', 256, 300);
+
+            // Shiny Cheetos Bag Metallic Mesh
+            const bagTex = new THREE.CanvasTexture(bagCanvas);
+            const bagGeo = new THREE.CylinderGeometry(1.1, 1.0, 3.2, 32, 16);
+            // Squeeze geometry into bag pillow shape
+            const pos = bagGeo.attributes.position;
+            for(let i = 0; i < pos.count; i++) {
+                let z = pos.getZ(i);
+                let y = pos.getY(i);
+                // Flatten Z to create pillow shape
+                pos.setZ(i, z * 0.35);
+                // Pinch top and bottom edges
+                if (Math.abs(y) > 1.3) {
+                    pos.setZ(i, z * 0.05);
+                }
+            }
+            bagGeo.computeVertexNormals();
+
+            const bagMat = new THREE.MeshStandardMaterial({
+                map: bagTex,
+                metalness: 0.45,
+                roughness: 0.25,
+            });
+            const bagMesh = new THREE.Mesh(bagGeo, bagMat);
+            bagGroup.add(bagMesh);
+
+            // Top & Bottom Metallic Crimps
+            const crimpGeo = new THREE.BoxGeometry(2.1, 0.15, 0.08);
+            const crimpMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.9, roughness: 0.1 });
+            const topCrimp = new THREE.Mesh(crimpGeo, crimpMat);
+            topCrimp.position.y = 1.6;
+            bagGroup.add(topCrimp);
+
+            const botCrimp = new THREE.Mesh(crimpGeo, crimpMat);
+            botCrimp.position.y = -1.6;
+            bagGroup.add(botCrimp);
+
+            // Orbiting Glowing Cheeto Pieces
+            const puffGeo = new THREE.TorusGeometry(0.2, 0.08, 12, 24);
+            const puffMat = new THREE.MeshStandardMaterial({ color: 0xff5500, roughness: 0.8, emissive: 0xff0033, emissiveIntensity: 0.3 });
+
+            const puffs = [];
+            for (let i = 0; i < 8; i++) {
+                const puff = new THREE.Mesh(puffGeo, puffMat);
+                puff.position.set(
+                    (Math.random() - 0.5) * 3.8,
+                    (Math.random() - 0.5) * 3.2,
+                    (Math.random() - 0.5) * 2.5
+                );
+                puff.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+                scene.add(puff);
+                puffs.push({
+                    mesh: puff,
+                    speed: 0.01 + Math.random() * 0.02,
+                    rotSpeed: 0.02
+                });
+            }
+
+            // Fiery Dust Particles
+            const particlesGeo = new THREE.BufferGeometry();
+            const pCount = 150;
+            const pPositions = new Float32Array(pCount * 3);
+            for(let i = 0; i < pCount * 3; i++) {
+                pPositions[i] = (Math.random() - 0.5) * 6;
+            }
+            particlesGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+            const particlesMat = new THREE.PointsMaterial({ color: 0xff5500, size: 0.06, transparent: true, opacity: 0.8 });
+            const particleSystem = new THREE.Points(particlesGeo, particlesMat);
+            scene.add(particleSystem);
+
+            // Auto Animation Loop
+            let clock = new THREE.Clock();
+            function animateBag() {
+                requestAnimationFrame(animateBag);
+                const elapsed = clock.getElapsedTime();
+
+                // Smooth Continuous Auto Rotation
+                bagGroup.rotation.y = elapsed * 0.7;
+                bagGroup.position.y = Math.sin(elapsed * 1.8) * 0.12;
+
+                // Orbiting Cheeto Puffs Animation
+                puffs.forEach(p => {
+                    p.mesh.rotation.x += p.rotSpeed;
+                    p.mesh.rotation.y += p.rotSpeed;
+                    p.mesh.position.y += Math.sin(elapsed * 2) * 0.002;
+                });
+
+                particleSystem.rotation.y = elapsed * 0.15;
+
+                renderer.render(scene, camera);
+            }
+            animateBag();
+
+            window.addEventListener('resize', () => {
+                if (!canvas.clientWidth || !canvas.clientHeight) return;
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            });
+        }
+
+        // Initialize Scenes on Window Load
+        window.onload = function() {
+            initIntroScene();
+            initCheetoBagScene();
+        };
+
+        // 3. Interactive 3D Perspective Tilt for Menu Cards
+        const cards = document.querySelectorAll('.food-card-wrap');
+        cards.forEach(card => {
+            const inner = card.querySelector('.food-card-inner');
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = ((y - centerY) / centerY) * -15;
+                const rotateY = ((x - centerX) / centerX) * 15;
+
+                inner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                inner.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+    </script>
+</body>
 </html>
