@@ -111,6 +111,7 @@
             animation: pulse-ring 2s infinite ease-in-out;
         }
     </style>
+    <script src="https://w.soundcloud.com/player/api.js"></script>
 </head>
 <body class="bg-synthDeep text-white font-rajdhani overflow-x-hidden selection:bg-vaporPink selection:text-black">
 
@@ -994,5 +995,25 @@
   style="display: none; opacity: 0; pointer-events: none;"
   src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1144933948&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&loop=true">
 </iframe>
+    document.addEventListener('DOMContentLoaded', () => {
+  const iframeElement = document.getElementById('sc-player');
+  const widget = SC.Widget(iframeElement);
+
+  // Attempt to play on page load
+  widget.bind(SC.Widget.Events.READY, () => {
+    widget.setVolume(70); // Set initial volume (0 to 100)
+    widget.play();
+  });
+
+  // Fallback: Start playback on first click anywhere on the website if autoplay was blocked
+  const handleFirstInteraction = () => {
+    widget.play();
+    document.removeEventListener('click', handleFirstInteraction);
+    document.removeEventListener('keydown', handleFirstInteraction);
+  };
+
+  document.addEventListener('click', handleFirstInteraction);
+  document.addEventListener('keydown', handleFirstInteraction);
+});
 </body>
 </html>
