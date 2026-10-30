@@ -27,8 +27,6 @@
                         vaporYellow: '#fffb96',
                         munchiesPurple: '#9d4edd',
                         munchiesDarkPurple: '#3c096c',
-                        cheetoOrange: '#ff5500',
-                        cheetoRed: '#ff0033',
                         synthDark: '#0d0221',
                         synthDeep: '#050014'
                     },
@@ -104,7 +102,6 @@
             transform-style: preserve-3d;
         }
 
-        /* Pulsing Computer Clickable Ring */
         @keyframes pulse-ring {
             0% { transform: scale(0.95); opacity: 0.8; }
             50% { transform: scale(1.08); opacity: 1; }
@@ -204,10 +201,10 @@
 
         <div class="relative z-10 text-center mb-2 px-4">
             <span class="font-vt text-xl md:text-2xl text-vaporYellow tracking-widest bg-black/60 px-4 py-1 border border-munchiesPurple/50 rounded-full">
-                MUNCHIES 3D SCAN // CHIP ANATOMY
+                MUNCHIES 3D SCAN // CYBER SODA CAN
             </span>
             <h2 class="font-orbitron text-3xl md:text-5xl font-black mt-3 text-transparent bg-clip-text bg-gradient-to-r from-vaporPink via-munchiesPurple to-vaporBlue uppercase">
-                CYBER MUNCHIES FLAMIN' BAG
+                CYBER MUNCHIES VAPOR SODA
             </h2>
         </div>
 
@@ -227,30 +224,30 @@
 
             <div class="absolute top-[10%] left-[4%] md:left-[8%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporPink glow-box-pink z-20 transform hover:scale-105 transition duration-300">
                 <div class="flex items-center space-x-2 text-vaporPink font-orbitron text-xs font-bold mb-1">
-                    <i class="fa-solid fa-bolt"></i><span>CRUNCH FACTOR: 100dB</span>
+                    <i class="fa-solid fa-bolt"></i><span>CARBONATION: 100PSI</span>
                 </div>
-                <p class="font-vt text-white text-lg leading-tight">Dual-baked mesh grid structure crafted for maximum audio crispness in every bite.</p>
+                <p class="font-vt text-white text-lg leading-tight">High pressure cyber fizz engineered for maximum tongue tingling refreshment.</p>
             </div>
 
             <div class="absolute top-[12%] right-[4%] md:right-[8%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporYellow shadow-[0_0_15px_rgba(255,251,150,0.3)] z-20 transform hover:scale-105 transition duration-300">
                 <div class="flex items-center space-x-2 text-vaporYellow font-orbitron text-xs font-bold mb-1">
-                    <i class="fa-solid fa-atom"></i><span>NEON CHEESE DUST</span>
+                    <i class="fa-solid fa-atom"></i><span>NEON EXTRACT</span>
                 </div>
-                <p class="font-vt text-white text-lg leading-tight">Micro-charged cheesy particulate coating fingers in glowing radioactive neon yellow.</p>
+                <p class="font-vt text-white text-lg leading-tight">Infused with rare glowing synthesized fruit nectars from 1994 cyberspace.</p>
             </div>
 
             <div class="absolute bottom-[10%] left-[4%] md:left-[6%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporBlue glow-box-blue z-20 transform hover:scale-105 transition duration-300">
                 <div class="flex items-center space-x-2 text-vaporBlue font-orbitron text-xs font-bold mb-1">
-                    <i class="fa-solid fa-shield"></i><span>NITROGEN FOIL BARRIER</span>
+                    <i class="fa-solid fa-shield"></i><span>ALUMINUM ALLOY</span>
                 </div>
-                <p class="font-vt text-white text-lg leading-tight">Pressurized retro foil chamber insulating freshness against atmospheric degradation.</p>
+                <p class="font-vt text-white text-lg leading-tight">Reinforced shell protecting the liquid matrix from cosmic radiation exposure.</p>
             </div>
 
             <div class="absolute bottom-[8%] right-[4%] md:right-[6%] w-60 md:w-64 bg-synthDark/85 backdrop-blur-md p-3 rounded-xl border border-vaporGreen shadow-[0_0_15px_rgba(5,255,161,0.3)] z-20 transform hover:scale-105 transition duration-300">
                 <div class="flex items-center space-x-2 text-vaporGreen font-orbitron text-xs font-bold mb-1">
-                    <i class="fa-solid fa-pepper-hot"></i><span>VAPOR SPICE MATRIX</span>
+                    <i class="fa-solid fa-ice-cream"></i><span>CHILL CHAMBER</span>
                 </div>
-                <p class="font-vt text-white text-lg leading-tight">Infused with synthetic chili compounds giving a signature lingering retro warmth.</p>
+                <p class="font-vt text-white text-lg leading-tight">Maintains absolute sub-zero temperatures inside the simulation.</p>
             </div>
         </div>
 
@@ -478,25 +475,18 @@
             const ambient = new THREE.AmbientLight(0xffffff, 0.9);
             scene.add(ambient);
 
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+
             const bagGroup = new THREE.Group();
             scene.add(bagGroup);
 
-            const bagCanvas = document.createElement('canvas');
-            bagCanvas.width = 512;
-            bagCanvas.height = 512;
-            const ctx = bagCanvas.getContext('2d');
-            const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
-            bgGrad.addColorStop(0, '#ff0033');
-            bgGrad.addColorStop(0.5, '#ff5500');
-            bgGrad.addColorStop(1, '#9d4edd');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, 512, 512);
-
-            const bagTex = new THREE.CanvasTexture(bagCanvas);
-            const bagGeo = new THREE.CylinderGeometry(1.1, 1.0, 3.2, 32, 16);
-            const bagMat = new THREE.MeshStandardMaterial({ map: bagTex, metalness: 0.45, roughness: 0.25 });
-            const bagMesh = new THREE.Mesh(bagGeo, bagMat);
-            bagGroup.add(bagMesh);
+            // Replaced with your Soda Can Geometry code snippet:
+            const newGeo = new THREE.CylinderGeometry(0.8, 0.8, 2.8, 32);
+            const newMat = new THREE.MeshStandardMaterial({ color: 0x01cdfe, metalness: 0.9, roughness: 0.1 });
+            const newMesh = new THREE.Mesh(newGeo, newMat);
+            bagGroup.add(newMesh);
 
             let clock = new THREE.Clock();
             function animateBag() {
@@ -531,7 +521,7 @@
         });
     </script>
 
-    <!-- Hidden SoundCloud Background Audio Player -->
+    <!-- Hidden SoundCloud Background Audio Player (FLXN by Jeron Braxton) -->
     <iframe 
       id="sc-player" 
       width="100%" 
