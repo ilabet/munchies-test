@@ -12,8 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <!-- Three.js for 3D Graphics -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- SoundCloud Widget API Library -->
-    <script src="https://w.soundcloud.com/player/api.js"></script>
 
     <script>
         tailwind.config = {
@@ -125,7 +123,7 @@
             <div class="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-vaporPink glow-box-pink computer-pulse">
                 <span class="font-vt text-vaporYellow text-2xl tracking-widest flex items-center gap-2">
                     <i class="fa-solid fa-hand-pointer text-vaporPink animate-bounce"></i>
-                    CLICK COMPUTER TO ENTER MUNCHIES MATRIX
+                    CLICK COMPUTER TO ENTER MUNCHIES MATRIX & PLAY AUDIO
                 </span>
             </div>
         </div>
@@ -391,8 +389,16 @@
         </div>
     </footer>
 
+    <!-- BACKGROUND YOUTUBE EMBED AUDIO PLAYER (LOOPING) -->
+    <div style="position:fixed; bottom:0; right:0; width:1px; height:1px; opacity:0.01; pointer-events:none; z-index:-99;">
+        <iframe id="bg-audio-frame" width="100" height="100" src="https://www.youtube.com/embed/uZEfsKmT7mo?enablejsapi=1&autoplay=1&loop=1&playlist=uZEfsKmT7mo" frameborder="0" allow="autoplay"></iframe>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // =========================================================================
+        // 1. RETRO COSMIC COMPUTER INTRO (WITH FLOATING PRISMS & CRT SCREEN)
+        // =========================================================================
         function initIntroScene() {
             const canvas = document.getElementById('intro-canvas');
             const overlay = document.getElementById('entrance-overlay');
@@ -408,6 +414,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+            // Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
             scene.add(ambientLight);
 
@@ -415,6 +422,11 @@
             pointLight1.position.set(5, 5, 5);
             scene.add(pointLight1);
 
+            const pointLight2 = new THREE.PointLight(0x01cdfe, 2, 20);
+            pointLight2.position.set(-5, -5, 5);
+            scene.add(pointLight2);
+
+            // Background Starfield
             const starsGeo = new THREE.BufferGeometry();
             const starsCount = 800;
             const starPos = new Float32Array(starsCount * 3);
@@ -426,22 +438,96 @@
             const starField = new THREE.Points(starsGeo, starsMat);
             scene.add(starField);
 
+            // Computer & Pedestal Group
             const pcGroup = new THREE.Group();
             scene.add(pcGroup);
 
+            // Pedestal Platform
             const pedGeo = new THREE.BoxGeometry(2.4, 0.15, 2.4);
-            const pedMat = new THREE.MeshStandardMaterial({ color: 0xb967ff, metalness: 0.8, roughness: 0.2, emissive: 0x3c096c, emissiveIntensity: 0.5 });
+            const pedMat = new THREE.MeshStandardMaterial({ 
+                color: 0xb967ff, 
+                metalness: 0.8, 
+                roughness: 0.2, 
+                emissive: 0x3c096c,
+                emissiveIntensity: 0.5
+            });
             const pedestal = new THREE.Mesh(pedGeo, pedMat);
             pedestal.position.y = -1.1;
             pcGroup.add(pedestal);
 
+            // Computer Monitor Body
             const pcBodyGeo = new THREE.BoxGeometry(1.4, 1.2, 1.1);
             const pcBodyMat = new THREE.MeshStandardMaterial({ color: 0xdfd3c3, roughness: 0.5 });
             const pcBody = new THREE.Mesh(pcBodyGeo, pcBodyMat);
             pcBody.position.y = -0.25;
             pcGroup.add(pcBody);
 
-            function onPointerDown(e) {
+            // CRT Screen Face with Rainbow Gradient
+            const screenCanvas = document.createElement('canvas');
+            screenCanvas.width = 256;
+            screenCanvas.height = 256;
+            const ctx = screenCanvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 256, 256);
+            grad.addColorStop(0, '#ff71ce');
+            grad.addColorStop(0.3, '#01cdfe');
+            grad.addColorStop(0.6, '#05ffa1');
+            grad.addColorStop(1, '#fffb96');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 256, 256);
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 26px monospace';
+            ctx.fillText('MUNCHIES OS', 40, 130);
+
+            const screenTex = new THREE.CanvasTexture(screenCanvas);
+            const screenGeo = new THREE.PlaneGeometry(1.1, 0.85);
+            const screenMat = new THREE.MeshBasicMaterial({ map: screenTex });
+            const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+            screenMesh.position.set(0, -0.2, 0.56);
+            pcGroup.add(screenMesh);
+
+            // Keyboard Base
+            const kbGeo = new THREE.BoxGeometry(1.3, 0.1, 0.6);
+            const kbMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+            const kb = new THREE.Mesh(kbGeo, kbMat);
+            kb.position.set(0, -0.9, 0.6);
+            pcGroup.add(kb);
+
+            // Floating Geometric Objects (Prisms, Cubes, Spheres)
+            const floatingItems = [];
+            const iridMat = new THREE.MeshStandardMaterial({
+                color: 0xff71ce,
+                metalness: 0.9,
+                roughness: 0.1,
+                emissive: 0x01cdfe,
+                emissiveIntensity: 0.3
+            });
+
+            const geoms = [
+                new THREE.BoxGeometry(0.5, 0.5, 0.5),
+                new THREE.OctahedronGeometry(0.4),
+                new THREE.SphereGeometry(0.3, 16, 16),
+                new THREE.CylinderGeometry(0.2, 0.2, 0.6, 6)
+            ];
+
+            for (let i = 0; i < 20; i++) {
+                const mesh = new THREE.Mesh(geoms[i % geoms.length], iridMat);
+                mesh.position.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 6 - 1
+                );
+                mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+                scene.add(mesh);
+                floatingItems.push({
+                    mesh: mesh,
+                    rotSpeedX: (Math.random() - 0.5) * 0.03,
+                    rotSpeedY: (Math.random() - 0.5) * 0.03,
+                    floatOffset: Math.random() * Math.PI * 2
+                });
+            }
+
+            // Click Handler for Computer Entrance & Unlocking Audio
+            function onPointerDown() {
                 overlay.style.opacity = '0';
                 overlay.style.pointerEvents = 'none';
                 setTimeout(() => { overlay.style.display = 'none'; }, 1000);
@@ -452,15 +538,33 @@
             function animateIntro() {
                 requestAnimationFrame(animateIntro);
                 const elapsed = clock.getElapsedTime();
+
                 pcGroup.position.y = Math.sin(elapsed * 1.5) * 0.15;
                 pcGroup.rotation.y = Math.sin(elapsed * 0.8) * 0.12;
+
+                floatingItems.forEach(item => {
+                    item.mesh.rotation.x += item.rotSpeedX;
+                    item.mesh.rotation.y += item.rotSpeedY;
+                    item.mesh.position.y += Math.sin(elapsed * 2 + item.floatOffset) * 0.003;
+                });
+
                 starField.rotation.y = elapsed * 0.02;
+
                 renderer.render(scene, camera);
             }
             animateIntro();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
 
-        function initCheetoBagScene() {
+        // =========================================================================
+        // 2. HERO SODA CAN SCENE (CUSTOM CYAN SODA CAN GEOMETRY)
+        // =========================================================================
+        function initSodaCanScene() {
             const canvas = document.getElementById('cheetos-3d-canvas');
             if (!canvas) return;
 
@@ -475,14 +579,14 @@
             const ambient = new THREE.AmbientLight(0xffffff, 0.9);
             scene.add(ambient);
 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
             dirLight.position.set(5, 5, 5);
             scene.add(dirLight);
 
             const bagGroup = new THREE.Group();
             scene.add(bagGroup);
 
-            // Replaced with your Soda Can Geometry code snippet:
+            // CUSTOM METALLIC CYAN SODA CAN GEOMETRY
             const newGeo = new THREE.CylinderGeometry(0.8, 0.8, 2.8, 32);
             const newMat = new THREE.MeshStandardMaterial({ color: 0x01cdfe, metalness: 0.9, roughness: 0.1 });
             const newMesh = new THREE.Mesh(newGeo, newMat);
@@ -497,13 +601,21 @@
                 renderer.render(scene, camera);
             }
             animateBag();
+
+            window.addEventListener('resize', () => {
+                if (!canvas.clientWidth || !canvas.clientHeight) return;
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            });
         }
 
         window.onload = function() {
             initIntroScene();
-            initCheetoBagScene();
+            initSodaCanScene();
         };
 
+        // 3D Card Tilt Effects
         const cards = document.querySelectorAll('.food-card-wrap');
         cards.forEach(card => {
             const inner = card.querySelector('.food-card-inner');
@@ -519,43 +631,6 @@
                 inner.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
             });
         });
-    </script>
-
-    <!-- Hidden SoundCloud Background Audio Player (FLXN by Jeron Braxton) -->
-    <iframe 
-      id="sc-player" 
-      width="100%" 
-      height="166" 
-      scrolling="no" 
-      frameborder="no" 
-      allow="autoplay" 
-      style="display: none; opacity: 0; pointer-events: none;"
-      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1144933948&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&loop=true">
-    </iframe>
-
-    <!-- SoundCloud Auto-Play Unlock Script -->
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const iframeElement = document.getElementById('sc-player');
-        
-        if (window.SC && iframeElement) {
-          const widget = SC.Widget(iframeElement);
-
-          widget.bind(SC.Widget.Events.READY, () => {
-            widget.setVolume(70);
-            widget.play();
-          });
-
-          const handleFirstInteraction = () => {
-            widget.play();
-            document.removeEventListener('click', handleFirstInteraction);
-            document.removeEventListener('keydown', handleFirstInteraction);
-          };
-
-          document.addEventListener('click', handleFirstInteraction);
-          document.addEventListener('keydown', handleFirstInteraction);
-        }
-      });
     </script>
 </body>
 </html>
